@@ -1,9 +1,11 @@
 package br.ufpe.cin.if710.podcast.ui;
 
 import android.app.Activity;
+import android.content.ContentValues;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -22,23 +24,34 @@ import java.util.ArrayList;
 import java.util.List;
 
 import br.ufpe.cin.if710.podcast.R;
+import br.ufpe.cin.if710.podcast.db.PodcastDBHelper;
+import br.ufpe.cin.if710.podcast.db.PodcastProvider;
 import br.ufpe.cin.if710.podcast.domain.ItemFeed;
 import br.ufpe.cin.if710.podcast.domain.XmlFeedParser;
 import br.ufpe.cin.if710.podcast.ui.adapter.XmlFeedAdapter;
+
+import static br.ufpe.cin.if710.podcast.db.PodcastDBHelper.DATABASE_TABLE;
+import static br.ufpe.cin.if710.podcast.db.PodcastDBHelper.EPISODE_DATE;
+import static br.ufpe.cin.if710.podcast.db.PodcastDBHelper.EPISODE_DESC;
+import static br.ufpe.cin.if710.podcast.db.PodcastDBHelper.EPISODE_DOWNLOAD_LINK;
+import static br.ufpe.cin.if710.podcast.db.PodcastDBHelper.EPISODE_LINK;
+import static br.ufpe.cin.if710.podcast.db.PodcastDBHelper.EPISODE_TITLE;
+
+import static br.ufpe.cin.if710.podcast.db.PodcastProviderContract.EPISODE_LIST_URI;
 
 public class MainActivity extends Activity {
 
     //ao fazer envio da resolucao, use este link no seu codigo!
     private final String RSS_FEED = "http://leopoldomt.com/if710/fronteirasdaciencia.xml";
     //TODO teste com outros links de podcast
-
+    private PodcastProvider dbHelper;
     private ListView items;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
+        dbHelper = new PodcastProvider();
         items = (ListView) findViewById(R.id.items);
     }
 
@@ -105,17 +118,30 @@ public class MainActivity extends Activity {
             //atualizar o list view
             items.setAdapter(adapter);
             items.setTextFilterEnabled(true);
-            /*
-            items.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                @Override
-                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                    XmlFeedAdapter adapter = (XmlFeedAdapter) parent.getAdapter();
-                    ItemFeed item = adapter.getItem(position);
-                    String msg = item.getTitle() + " " + item.getLink();
-                    Toast.makeText(getApplicationContext(), msg, Toast.LENGTH_SHORT).show();
-                }
-            });
-            /**/
+
+//            items.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+//                @Override
+//                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+//                    XmlFeedAdapter adapter = (XmlFeedAdapter) parent.getAdapter();
+//                    ItemFeed item = adapter.getItem(position);
+//                    String msg = item.getTitle() + " " + item.getLink();
+//                    Toast.makeText(getApplicationContext(), msg, Toast.LENGTH_SHORT).show();
+//                }
+//            });
+            //preenchimento da tabela para o passo 3 :)
+            ContentValues values = new ContentValues();
+            for(int i =0; i<feed.size(); i++) {
+                values.put(EPISODE_TITLE, feed.get(i).getTitle());
+                values.put(EPISODE_DATE, feed.get(i).getPubDate());
+                values.put(EPISODE_DOWNLOAD_LINK, feed.get(i).getDownloadLink());
+                values.put(EPISODE_DESC, feed.get(i).getDescription());
+                values.put(EPISODE_LINK, feed.get(i).getLink());
+                dbHelper.insert(EPISODE_LIST_URI,values );
+                Log.d(">>>>>>>>>>","Inseri ao item "+ feed.get(i).getTitle());
+                //limpar pra evitar repetições dos itens
+                values.clear();
+
+            }
         }
     }
 
@@ -123,8 +149,10 @@ public class MainActivity extends Activity {
     private String getRssFeed(String feed) throws IOException {
         InputStream in = null;
         String rssFeed = "";
+
         try {
             URL url = new URL(feed);
+
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             in = conn.getInputStream();
             ByteArrayOutputStream out = new ByteArrayOutputStream();
@@ -135,6 +163,7 @@ public class MainActivity extends Activity {
             byte[] response = out.toByteArray();
             rssFeed = new String(response, "UTF-8");
         } finally {
+
             if (in != null) {
                 in.close();
             }
