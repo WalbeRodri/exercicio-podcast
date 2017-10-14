@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import br.ufpe.cin.if710.podcast.R;
+import br.ufpe.cin.if710.podcast.ServiceDownload;
 import br.ufpe.cin.if710.podcast.db.PodcastDBHelper;
 import br.ufpe.cin.if710.podcast.db.PodcastProvider;
 import br.ufpe.cin.if710.podcast.domain.ItemFeed;
@@ -52,6 +53,7 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         dbHelper = new PodcastProvider();
+        dbHelper.onCreate();
         items = (ListView) findViewById(R.id.items);
     }
 
@@ -79,7 +81,7 @@ public class MainActivity extends Activity {
     @Override
     protected void onStart() {
         super.onStart();
-        new DownloadXmlTask().execute(RSS_FEED);
+        ServiceDownload.startActionDownloadList(this, RSS_FEED);
     }
 
     @Override
@@ -92,7 +94,7 @@ public class MainActivity extends Activity {
     private class DownloadXmlTask extends AsyncTask<String, Void, List<ItemFeed>> {
         @Override
         protected void onPreExecute() {
-            Toast.makeText(getApplicationContext(), "iniciando...", Toast.LENGTH_SHORT).show();
+
         }
 
         @Override
@@ -129,6 +131,7 @@ public class MainActivity extends Activity {
 //                }
 //            });
             //preenchimento da tabela para o passo 3 :)
+
             ContentValues values = new ContentValues();
             for(int i =0; i<feed.size(); i++) {
                 values.put(EPISODE_TITLE, feed.get(i).getTitle());

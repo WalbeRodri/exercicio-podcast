@@ -22,7 +22,6 @@ public class PodcastDBHelper extends SQLiteOpenHelper {
         if (db==null) {
             db = new PodcastDBHelper(c.getApplicationContext());
         }
-        Log.d(">>>>>>>>>>>>", "entrei no Podcast helper");
         return db;
     }
 
@@ -53,7 +52,6 @@ public class PodcastDBHelper extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase sqLiteDatabase) {
         sqLiteDatabase.execSQL(CREATE_CMD);
-        Log.d(">>>>>>>>>>>>>", "create table episodes");
     }
 
     @Override

@@ -5,6 +5,7 @@ import android.content.Context;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.TextView;
 
 import br.ufpe.cin.if710.podcast.R;
@@ -49,6 +50,7 @@ public class XmlFeedAdapter extends ArrayAdapter<ItemFeed> {
     static class ViewHolder {
         TextView item_title;
         TextView item_date;
+        Button baixarBotao;
     }
 
     @Override
@@ -59,12 +61,30 @@ public class XmlFeedAdapter extends ArrayAdapter<ItemFeed> {
             holder = new ViewHolder();
             holder.item_title = (TextView) convertView.findViewById(R.id.item_title);
             holder.item_date = (TextView) convertView.findViewById(R.id.item_date);
+            //captura o botao da tela que realizara o download
+            holder.baixarBotao = (Button) convertView.findViewById(R.id.item_action);
+
+            //adiciona um onclick para tudo no item que nao seja o botao.
+            convertView.setOnClickListener(new View.OnClickListener(){
+                @Override
+                public void onClick(View view) {
+                    //inicia a activity de detalhes
+
+                }
+            });
+
             convertView.setTag(holder);
         } else {
             holder = (ViewHolder) convertView.getTag();
         }
         holder.item_title.setText(getItem(position).getTitle());
         holder.item_date.setText(getItem(position).getPubDate());
+        holder.baixarBotao.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                //criar intent pra fazer o download
+            }
+        });
         return convertView;
     }
 }
