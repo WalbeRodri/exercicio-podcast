@@ -6,6 +6,7 @@ import android.content.ContentValues;
 import android.content.Intent;
 import android.content.Context;
 import android.database.Cursor;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -33,7 +34,7 @@ import static br.ufpe.cin.if710.podcast.db.PodcastProviderContract.DESCRIPTION;
 import static br.ufpe.cin.if710.podcast.db.PodcastProviderContract.EPISODE_LIST_URI;
 
 public class ServiceDownload extends IntentService {
-    private static final String ACTION_DOWNLOAD_lIST = "br.ufpe.cin.if710.podcast.action.DOWNLOAD_LIST";
+    public static final String ACTION_DOWNLOAD_lIST = "br.ufpe.cin.if710.podcast.action.DOWNLOAD_LIST";
     private static final String ACTION_BAZ = "br.ufpe.cin.if710.podcast.action.BAZ";
 
     // TODO: Rename parameters
@@ -93,6 +94,11 @@ public class ServiceDownload extends IntentService {
         }
         adicionaItem(itemList);
 
+        //intent avisando pra view ser atualizada
+        Intent downloadComplete = new Intent(ACTION_DOWNLOAD_lIST);
+        LocalBroadcastManager.getInstance(this).sendBroadcast(downloadComplete);
+
+
 
     }
 
@@ -125,6 +131,7 @@ public class ServiceDownload extends IntentService {
         }
         return rssFeed;
     }
+
     private boolean adicionaItem (List<ItemFeed> feed){
         ContentValues values = new ContentValues();
         //para todos os itens da lista de feed, checa se existe na tabela e adiciona-os
