@@ -158,7 +158,10 @@ public class ServiceDownload extends IntentService {
                 //limpar pra evitar repetições dos itens
                 values.clear();
                 checaItem.close();
+            } else if (checaItem != null) {
+                checaItem.close();
             }
+
 
         }
        return true;

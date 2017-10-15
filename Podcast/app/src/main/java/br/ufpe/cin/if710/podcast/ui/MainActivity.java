@@ -59,9 +59,6 @@ public class MainActivity extends Activity {
         dbHelper.onCreate();
         items = (ListView) findViewById(R.id.items);
 
-        //registro
-        IntentFilter intentFilter = new IntentFilter(ACTION_DOWNLOAD_lIST);
-        LocalBroadcastManager.getInstance(getApplicationContext()).registerReceiver(onServiceDownloadCompleteEvent, intentFilter);
     }
 
     @Override
@@ -90,6 +87,9 @@ public class MainActivity extends Activity {
         super.onStart();
         onFirstPlan = true;
         ServiceDownload.startActionDownloadList(this, RSS_FEED);
+        //registro
+        IntentFilter intentFilter = new IntentFilter(ACTION_DOWNLOAD_lIST);
+        LocalBroadcastManager.getInstance(getApplicationContext()).registerReceiver(onServiceDownloadCompleteEvent, intentFilter);
     }
 
     @Override
@@ -98,13 +98,27 @@ public class MainActivity extends Activity {
         onFirstPlan = false;
         XmlFeedAdapter adapter = (XmlFeedAdapter) items.getAdapter();
         adapter.clear();
+        //registro
+        IntentFilter intentFilter = new IntentFilter(ACTION_DOWNLOAD_lIST);
+        LocalBroadcastManager.getInstance(getApplicationContext()).registerReceiver(onServiceDownloadCompleteEvent, intentFilter);
+    }
+
+    @Override
+    protected void onPause(){
+        super.onPause();
+        onFirstPlan = false;
+    }
+
+    @Override
+    protected void onResume(){
+        super.onResume();
+        onFirstPlan = true;
     }
 
     private BroadcastReceiver onServiceDownloadCompleteEvent = new BroadcastReceiver() {
 
         @Override
         public void onReceive(Context context, Intent intent) {
-
 //            //sleep para testar a notificação
 //            try {
 //                Thread.sleep(10000);
@@ -112,7 +126,7 @@ public class MainActivity extends Activity {
 //                e.printStackTrace();
 //
 //            }
-//            Log.d("<<<<<<<<<<<<<<<<<","PASSEI DA THREADSLEEP");
+            Log.d("<<<<<<<<<<<<<<<<<","PASSEI DA THREADSLEEP");
             //checa se esta em primeiro plano o atributo é atualizado
             if (onFirstPlan) {
                 //realiza a query
